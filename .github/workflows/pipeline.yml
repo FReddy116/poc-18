@@ -1,0 +1,61 @@
+name: Multi Environment Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  dev:
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to DEV
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ vars.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            sudo rm -rf /var/www/html/*
+            sed "s/ENV_NAME/${{ vars.ENV_NAME }}/g" index.html | sudo tee /var/www/html/index.html
+
+  test:
+    runs-on: ubuntu-latest
+    environment: test
+    needs: dev
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to TEST
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ vars.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            sudo rm -rf /var/www/html/*
+            sed "s/ENV_NAME/${{ vars.ENV_NAME }}/g" index.html | sudo tee /var/www/html/index.html
+
+  prod:
+    runs-on: ubuntu-latest
+    environment: prod
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to PROD
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ vars.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            sudo rm -rf /var/www/html/*
+            sed "s/ENV_NAME/${{ vars.ENV_NAME }}/g" index.html | sudo tee /var/www/html/index.html
