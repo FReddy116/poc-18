@@ -1,4 +1,4 @@
-name: Multi Environment Pipeline
+name: poc-18
 
 on:
   push:
@@ -18,8 +18,8 @@ jobs:
       - name: Deploy to DEV EC2
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ vars.EC2_HOST }}
-          username: ${{ vars.EC2_USER }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           port: 22
           timeout: 60s
@@ -28,8 +28,7 @@ jobs:
             sudo apt install -y nginx
             sudo systemctl enable nginx
             sudo systemctl start nginx
-            sudo rm -rf /var/www/html/*
-            sed "s/ENV_NAME/${{ vars.ENV_NAME }}/g" index.html | sudo tee /var/www/html/index.html
+            echo "<h1>Welcome to DEV environment</h1>" | sudo tee /var/www/html/index.html
 
   test:
     name: Deploy to TEST
@@ -44,8 +43,8 @@ jobs:
       - name: Deploy to TEST EC2
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ vars.EC2_HOST }}
-          username: ${{ vars.EC2_USER }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           port: 22
           timeout: 60s
@@ -54,8 +53,7 @@ jobs:
             sudo apt install -y nginx
             sudo systemctl enable nginx
             sudo systemctl start nginx
-            sudo rm -rf /var/www/html/*
-            sed "s/ENV_NAME/${{ vars.ENV_NAME }}/g" index.html | sudo tee /var/www/html/index.html
+            echo "<h1>Welcome to TEST environment</h1>" | sudo tee /var/www/html/index.html
 
   prod:
     name: Deploy to PROD
@@ -70,8 +68,8 @@ jobs:
       - name: Deploy to PROD EC2
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ vars.EC2_HOST }}
-          username: ${{ vars.EC2_USER }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           port: 22
           timeout: 60s
@@ -80,5 +78,4 @@ jobs:
             sudo apt install -y nginx
             sudo systemctl enable nginx
             sudo systemctl start nginx
-            sudo rm -rf /var/www/html/*
-            sed "s/ENV_NAME/${{ vars.ENV_NAME }}/g" index.html | sudo tee /var/www/html/index.html
+            echo "<h1>Welcome to PROD environment</h1>" | sudo tee /var/www/html/index.html
